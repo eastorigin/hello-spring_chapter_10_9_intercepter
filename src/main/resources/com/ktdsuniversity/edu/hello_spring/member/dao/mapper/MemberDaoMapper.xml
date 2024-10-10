@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ktdsuniversity.edu.hello_spring.member.dao.MemberDao">
+	<select id="selectEmailCount" parameterType="string" resultType="_int">
+		SELECT COUNT(1)
+  	  	  FROM MEMBERS
+ 	 	 WHERE EMAIL = #{_parameter}
+	</select>
+
+	<insert id="insertNewMember" parameterType="com.ktdsuniversity.edu.hello_spring.member.vo.MemberRegistVO">
+		INSERT INTO MEMBERS (
+   		   EMAIL
+ 		 , NAME
+ 		 , PASSWORD
+ 		 , SALT
+ 		 , LOGIN_FAIL_COUNT )
+		VALUES (
+   		   #{email}
+ 	  	 , #{name}
+ 		 , #{password}
+ 		 , #{salt}
+ 		 , 0 )
+	</insert>
+	
+	<select id="selectSalt" parameterType="string" resultType="string">
+		SELECT SALT
+  		  FROM MEMBERS
+ 		 WHERE EMAIL = #{_parameter}
+	</select>
+	
+	<select id="selectOneMember" parameterType="com.ktdsuniversity.edu.hello_spring.member.vo.LoginMemberVO" resultType="com.ktdsuniversity.edu.hello_spring.member.vo.MemberVO">
+		SELECT EMAIL
+	 		 , NAME
+	 		 , PASSWORD
+	 		 , SALT
+	 		 , LOGIN_FAIL_COUNT
+	 		 , TO_CHAR(LATEST_LOGIN_FAIL_DATE, 'YYYY-MM-DD HH24:MI:SS') LATEST_LOGIN_FAIL_DATE
+	 		 , LATEST_LOGIN_IP
+	 		 , TO_CHAR(LATEST_LOGIN_SUCCESS_DATE, 'YYYY-MM-DD HH24:MI:SS') LATEST_LOGIN_SUCCESS_DATE
+  		  FROM MEMBERS
+ 		 WHERE EMAIL = #{email}
+   		   AND PASSWORD = #{password}
+	</select>
+	
+	<update id="updateLoginFailState" parameterType="com.ktdsuniversity.edu.hello_spring.member.vo.LoginMemberVO">
+		UPDATE MEMBERS
+   		   SET LOGIN_FAIL_COUNT = LOGIN_FAIL_COUNT + 1
+     		 , LATEST_LOGIN_FAIL_DATE = SYSDATE
+     		 , LATEST_LOGIN_IP = #{ip}
+ 		 WHERE EMAIL = #{email}
+	</update>
+	
+	<select id="selectLoginImpossibleCount" parameterType="string" resultType="_int">
+		SELECT COUNT(1) 
+  		  FROM MEMBERS
+ 		 WHERE EMAIL = #{_parameter}
+   		   AND LOGIN_FAIL_COUNT >= 5
+   		   AND LATEST_LOGIN_FAIL_DATE BETWEEN SYSDATE - 1/24 AND SYSDATE
+	</select>
+	
+	<update id="updateLoginSuccessState" parameterType="com.ktdsuniversity.edu.hello_spring.member.vo.LoginMemberVO">
+		UPDATE MEMBERS
+   		   SET LOGIN_FAIL_COUNT = 0
+     		 , LATEST_LOGIN_FAIL_DATE = NULL
+     		 , LATEST_LOGIN_IP = #{ip}
+     		 , LATEST_LOGIN_SUCCESS_DATE = SYSDATE
+ 		 WHERE EMAIL = #{email}
+	</update>
+	
+	<delete id="deleteMe" parameterType="string">
+		DELETE
+  		  FROM MEMBERS
+ 		 WHERE EMAIL = #{email}
+	</delete>
+</mapper>

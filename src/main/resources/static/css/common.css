@@ -1,0 +1,63 @@
+@charset "UTF-8";
+
+div.grid {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  grid-template-rows:
+    minmax(28px, auto) minmax(28px, auto) minmax(28px, auto) minmax(28px, auto)
+    1fr;
+  row-gap: 10px;
+}
+
+div.grid-view-board {
+  grid-template-rows: repeat(6, 28px) 320px 1fr;
+}
+
+div.errors {
+  color: #a00;
+  font-size: 0.8rem;
+}
+
+div.grid > div.btn-group {
+  grid-column: 1 / -1;
+  border-radius: 1rem;
+}
+
+div.grid div.right-align {
+  text-align: right;
+}
+
+button,
+input,
+textarea {
+  padding: 10px;
+}
+
+input[type="file"] {
+  padding: 0;
+}
+
+textarea {
+  height: 300px;
+}
+
+.available {
+  background-color: #0f08;
+}
+
+.unusable {
+  background-color: #f008;
+}
+
+ul.horizontal-list {
+  padding: 0px;
+  margin: 0px;
+}
+
+ul.horizontal-list li {
+  display: inline;
+}
+
+.membermenu {
+  text-align: right;
+}

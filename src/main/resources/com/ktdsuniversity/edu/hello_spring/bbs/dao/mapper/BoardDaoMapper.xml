@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper 
+	namespace="com.ktdsuniversity.edu.hello_spring.bbs.dao.BoardDao">
+	
+	<resultMap type="com.ktdsuniversity.edu.hello_spring.bbs.vo.BoardVO" id="boardVOMap" autoMapping="true">
+		<!-- PK컬럼은 id 태그를 사용한다 -->
+		<!-- column에는 테이블 컬럼명, property에는 멤버변수명 -->
+		<id column="ID" property="id" />
+		<!-- 일반컬럼은 result 태그를 사용한다 -->
+<!-- 		<result column="SUBJECT" property="subject" /> -->
+<!-- 		<result column="CONTENT" property="content" /> -->
+<!-- 		<result column="EMAIL" property="email" /> -->
+<!-- 		<result column="VIEW_CNT" property="viewCnt" /> -->
+<!-- 		<result column="CRT_DT" property="crtDt" /> -->
+<!-- 		<result column="MDFY_DT" property="mdfyDt" /> -->
+<!-- 		<result column="FILE_NAME" property="fileName" /> -->
+<!-- 		<result column="ORIGIN_FILE_NAME" property="originFileName" /> -->
+		<!-- 1:1 관계의 Has A 인스턴스는 association 태그를 사용한다 -->
+		<association property="memberVO" javaType="com.ktdsuniversity.edu.hello_spring.member.vo.MemberVO" autoMapping="true">
+			<!-- MemberVO 클래스와 맵핑된 MEMBERS 테이블의 PK 컬럼을 id 태그로 사용해야한다 -->
+			<id column="EMAIL" property="email" />
+<!-- 			<result column="NAME" property="name" /> -->
+		</association>
+	</resultMap>
+
+	<select id="selectBoardAllCount" resultType="_int">
+	SELECT COUNT(1)
+  	  FROM BOARD B
+  	 INNER JOIN MEMBERS M
+  	    ON B.EMAIL = M.EMAIL
+	</select>
+
+	<select id="selectAllBoard" resultMap="boardVOMap">
+		SELECT B.ID
+	 		 , B.SUBJECT
+	 		 , B.CONTENT
+	 		 , B.EMAIL
+	 		 , B.VIEW_CNT
+	 		 , TO_CHAR(B.CRT_DT, 'YYYY-MM-DD') CRT_DT
+	 		 , TO_CHAR(B.MDFY_DT, 'YYYY-MM-DD') MDFY_DT
+	 		 , B.FILE_NAME
+	 		 , B.ORIGIN_FILE_NAME
+	 		 , M.NAME
+  		  FROM BOARD B
+ 		 INNER JOIN MEMBERS M
+  			ON B.EMAIL = M.EMAIL
+ 		 ORDER BY B.ID DESC
+	</select>
+	
+	<insert id="inserNewBoard" parameterType="com.ktdsuniversity.edu.hello_spring.bbs.vo.WriteBoardVO">
+	INSERT INTO BOARD
+	 (ID
+	, SUBJECT
+	, CONTENT
+	, EMAIL
+	, VIEW_CNT
+	, CRT_DT
+	, MDFY_DT
+	, FILE_NAME
+	, ORIGIN_FILE_NAME
+	, IP)
+	VALUES
+	 (SEQ_BOARD_PK.NEXTVAL
+	, #{subject}
+	, #{content}
+	, #{email}
+	, 0
+	, SYSDATE
+	, SYSDATE
+	, #{fileName}
+	, #{originFileName}
+	, #{ip})
+	</insert>
+	
+	<update id="updateViewCount" parameterType="_int">
+	UPDATE BOARD
+   	   SET VIEW_CNT = VIEW_CNT + 1
+ 	 WHERE ID = #{_parameter}
+	</update>
+	
+	<select id="selectOneBoard" parameterType="_int" resultMap="boardVOMap">
+ 	SELECT B.ID
+	 	 , B.SUBJECT
+	 	 , B.CONTENT
+	 	 , B.EMAIL
+	 	 , B.VIEW_CNT
+	 	 , TO_CHAR(B.CRT_DT, 'YYYY-MM-DD') CRT_DT
+	 	 , TO_CHAR(B.MDFY_DT, 'YYYY-MM-DD') MDFY_DT
+	 	 , B.FILE_NAME
+	 	 , B.ORIGIN_FILE_NAME
+	 	 , M.NAME 
+  	  FROM BOARD B
+  	 INNER JOIN MEMBERS M
+  	    ON B.EMAIL = M.EMAIL
+ 	 WHERE B.ID = #{_parameter}
+	</select>
+	
+	<update id="updateOneBoard" parameterType="com.ktdsuniversity.edu.hello_spring.bbs.vo.ModifyBoardVO">
+	UPDATE BOARD
+   	   SET SUBJECT = #{subject}
+   	 	 , CONTENT = #{content}
+   	 	 , EMAIL = #{email}
+   	 	 , MDFY_DT = SYSDATE
+   	 	 <if test='fileName != null and fileName != ""'>
+   	 	 , FILE_NAME = #{fileName}
+   	 	 , ORIGIN_FILE_NAME = #{originFileName}
+   	 	 </if>
+ 	 WHERE ID = #{id}
+	</update>
+	
+	<delete id="deleteOneBoard" parameterType="_int">
+	DELETE 
+	  FROM BOARD
+ 	 WHERE ID = #{_parameter}
+	</delete>
+</mapper>
